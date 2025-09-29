@@ -1,5 +1,5 @@
 """
-Pruebas simples para calculator.py
+Pruebas básicas para calculator.py
 """
 
 import pytest
@@ -51,3 +51,5 @@ def test_validate_email():
 # Coverage Issue: falta prueba para validate_phone
 # Coverage Issue: falta prueba para validate_name
 # Coverage Issue: falta prueba para process_user_data_and_validate_and_save_and_send_notification
+# Coverage Issue: falta prueba para get_list_item
+# Coverage Issue: falta prueba para access_dict_key

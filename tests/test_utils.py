@@ -1,5 +1,5 @@
 """
-Pruebas simples para utils.py
+Pruebas básicas para utils.py
 """
 
 import pytest
@@ -25,6 +25,8 @@ def test_calculate_total_price():
 # Coverage Issue: falta prueba para format_number
 # Coverage Issue: falta prueba para format_boolean
 # Coverage Issue: falta prueba para calculate_total_cost
-# Coverage Issue: falta prueba para get_list_item
-# Coverage Issue: falta prueba para access_dict_key
+# Coverage Issue: falta prueba para calculate_total_value
 # Coverage Issue: falta prueba para handle_user_registration_and_validation_and_notification
+# Coverage Issue: falta prueba para divide_numbers
+# Coverage Issue: falta prueba para get_array_element
+# Coverage Issue: falta prueba para get_dict_value

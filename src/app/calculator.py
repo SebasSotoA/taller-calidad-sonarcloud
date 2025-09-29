@@ -1,5 +1,5 @@
 """
-Calculadora simple con problemas de calidad intencionales.
+Calculadora con problemas de calidad específicos para SonarCloud.
 """
 
 import os  # New Issue: import innecesario
@@ -47,7 +47,7 @@ class Calculator:
         self.history = []
 
 
-# Duplication Issue: funciones similares
+# Duplication Issue: funciones similares (mismo patrón)
 def calculate_area_rectangle(length, width):
     """Calcula área de rectángulo."""
     return length * width
@@ -63,7 +63,7 @@ def calculate_area_triangle(base, height):
     return (base * height) / 2
 
 
-# Duplication Issue: funciones similares
+# Duplication Issue: funciones similares (mismo patrón)
 def validate_email(email):
     """Valida email."""
     return "@" in email and "." in email
@@ -79,7 +79,7 @@ def validate_name(name):
     return len(name) >= 2 and name.isalpha()
 
 
-# Maintainability Issue: función muy larga
+# Maintainability Issue: función muy larga (más de 50 líneas)
 def process_user_data_and_validate_and_save_and_send_notification(user_data):
     """Función muy larga con demasiadas responsabilidades."""
     # Validar datos
@@ -89,11 +89,17 @@ def process_user_data_and_validate_and_save_and_send_notification(user_data):
         return False
     if not user_data.get('phone'):
         return False
+    if not user_data.get('age'):
+        return False
+    if not user_data.get('address'):
+        return False
     
     # Procesar datos
     processed_name = user_data['name'].strip().upper()
     processed_email = user_data['email'].strip().lower()
     processed_phone = user_data['phone'].replace('-', '').replace(' ', '')
+    processed_age = int(user_data['age'])
+    processed_address = user_data['address'].strip().title()
     
     # Validar formato
     if not validate_email(processed_email):
@@ -102,6 +108,10 @@ def process_user_data_and_validate_and_save_and_send_notification(user_data):
         return False
     if not validate_name(processed_name):
         return False
+    if processed_age < 18:
+        return False
+    if len(processed_address) < 10:
+        return False
     
     # Simular guardado
     user_record = {
@@ -109,11 +119,22 @@ def process_user_data_and_validate_and_save_and_send_notification(user_data):
         'name': processed_name,
         'email': processed_email,
         'phone': processed_phone,
-        'created_at': '2024-01-01'
+        'age': processed_age,
+        'address': processed_address,
+        'created_at': '2024-01-01',
+        'status': 'active',
+        'permissions': ['read', 'write'],
+        'metadata': {
+            'source': 'web',
+            'version': '1.0',
+            'ip': '127.0.0.1'
+        }
     }
     
     # Simular notificación
     print(f"Usuario procesado: {processed_name}")
+    print(f"Email enviado a: {processed_email}")
+    print(f"Registro guardado con ID: {user_record['id']}")
     
     return user_record
 
@@ -124,6 +145,18 @@ def calculate_average(numbers):
     total = sum(numbers)
     count = len(numbers)
     return total / count  # Puede generar ZeroDivisionError
+
+
+# Reliability Issue: función sin validación
+def get_list_item(items, index):
+    """Obtiene elemento sin validar índice."""
+    return items[index]  # Puede generar IndexError
+
+
+# Reliability Issue: función sin validación
+def access_dict_key(data, key):
+    """Accede a clave sin validar existencia."""
+    return data[key]  # Puede generar KeyError
 
 
 # New Issue: función sin usar
