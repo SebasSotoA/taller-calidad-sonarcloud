@@ -69,16 +69,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
         with:
-          # Additional arguments for the SonarScanner CLI
-          args: >
-            -Dsonar.projectKey=SebasSotoA_taller-calidad-sonarcloud
-            -Dsonar.organization=taller-sonarcloud
-            -Dsonar.scm.provider=git
-            -Dsonar.sources=src/app
-            -Dsonar.tests=tests
-            -Dsonar.python.version=3.12
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.python.xunit.reportPath=junit.xml
-            -Dsonar.exclusions=**/__pycache__/**,**/*.pyc,**/venv/**,**/.venv/**
           # When you need the analysis to take place in a directory other than the one from which it was launched, default is .
           projectBaseDir: .
