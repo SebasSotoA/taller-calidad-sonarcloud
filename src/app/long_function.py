@@ -168,18 +168,217 @@ def validar_formulario_usuario(nombre, email, edad, telefono, direccion, ciudad,
     return len(errores) == 0, errores
 
 
-# Código comentado innecesario
+def funcion_con_muchos_parametros(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t):
+    """
+    Función con demasiados parámetros (>7) - Code Smell detectado por SonarCloud.
+    """
+    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r + s + t
+
+
+def funcion_con_complejidad_ciclamatica():
+    """
+    Función con alta complejidad ciclomática - múltiples condiciones anidadas.
+    """
+    resultado = 0
+    for i in range(10):
+        if i % 2 == 0:
+            if i % 3 == 0:
+                if i % 5 == 0:
+                    resultado += i * 2
+                else:
+                    resultado += i
+            elif i % 4 == 0:
+                if i > 5:
+                    resultado += i * 3
+                else:
+                    resultado += i * 2
+            else:
+                resultado += i
+        elif i % 3 == 0:
+            if i % 7 == 0:
+                resultado += i * 4
+            else:
+                resultado += i * 2
+        else:
+            if i > 7:
+                resultado += i * 5
+            elif i > 3:
+                resultado += i * 3
+            else:
+                resultado += i
+    return resultado
+
+
+def funcion_con_muchas_variables_locales():
+    """
+    Función con demasiadas variables locales (>8) - Code Smell.
+    """
+    variable1 = 1
+    variable2 = 2
+    variable3 = 3
+    variable4 = 4
+    variable5 = 5
+    variable6 = 6
+    variable7 = 7
+    variable8 = 8
+    variable9 = 9
+    variable10 = 10
+    variable11 = 11
+    variable12 = 12
+    variable13 = 13
+    variable14 = 14
+    variable15 = 15
+    variable16 = 16
+    variable17 = 17
+    variable18 = 18
+    variable19 = 19
+    variable20 = 20
+    
+    return variable1 + variable2 + variable3 + variable4 + variable5 + variable6 + variable7 + variable8 + variable9 + variable10 + variable11 + variable12 + variable13 + variable14 + variable15 + variable16 + variable17 + variable18 + variable19 + variable20
+
+
+def funcion_con_muchos_return():
+    """
+    Función con demasiados return statements (>3) - Code Smell.
+    """
+    if True:
+        return 1
+    elif False:
+        return 2
+    elif True:
+        return 3
+    elif False:
+        return 4
+    elif True:
+        return 5
+    elif False:
+        return 6
+    elif True:
+        return 7
+    elif False:
+        return 8
+    elif True:
+        return 9
+    elif False:
+        return 10
+    else:
+        return 11
+
+
+def funcion_con_strings_magicos():
+    """
+    Función con strings mágicos hardcodeados - Code Smell.
+    """
+    if "admin" == "admin":
+        return "success"
+    elif "user" == "user":
+        return "ok"
+    elif "guest" == "guest":
+        return "limited"
+    elif "root" == "root":
+        return "full_access"
+    elif "superuser" == "superuser":
+        return "all_permissions"
+    else:
+        return "denied"
+
+
+def funcion_con_numeros_magicos():
+    """
+    Función con números mágicos hardcodeados - Code Smell.
+    """
+    if 100 > 50:
+        return 200
+    elif 300 < 400:
+        return 500
+    elif 600 == 600:
+        return 700
+    elif 800 != 900:
+        return 1000
+    elif 1100 >= 1200:
+        return 1300
+    else:
+        return 1400
+
+
+def funcion_con_duplicacion_interna():
+    """
+    Función con código duplicado internamente - Code Smell.
+    """
+    # Bloque duplicado 1
+    resultado1 = 0
+    for i in range(5):
+        resultado1 += i * 2
+    resultado1 = resultado1 * 3
+    
+    # Bloque duplicado 2 (idéntico al 1)
+    resultado2 = 0
+    for i in range(5):
+        resultado2 += i * 2
+    resultado2 = resultado2 * 3
+    
+    # Bloque duplicado 3 (idéntico al 1)
+    resultado3 = 0
+    for i in range(5):
+        resultado3 += i * 2
+    resultado3 = resultado3 * 3
+    
+    return resultado1 + resultado2 + resultado3
+
+
+def funcion_con_comentarios_todos():
+    """
+    Función con comentarios TODO/FIXME - Code Smell.
+    """
+    # TODO: Implementar validación de entrada
+    # FIXME: Corregir cálculo de impuestos
+    # TODO: Agregar manejo de errores
+    # FIXME: Optimizar algoritmo
+    # TODO: Refactorizar código duplicado
+    # FIXME: Actualizar documentación
+    # TODO: Implementar tests unitarios
+    # FIXME: Corregir bug en línea 42
+    
+    valor = 42
+    return valor * 2
+
+
+def funcion_con_imports_no_usados():
+    """
+    Función con imports no utilizados - Code Smell.
+    """
+    import os
+    import sys
+    import json
+    import datetime
+    import random
+    import math
+    import re
+    import urllib.request
+    
+    # Solo usamos una variable simple
+    resultado = 10
+    return resultado
+
+
+# Código comentado innecesario - Code Smell
 # def funcion_eliminada():
 #     return "Esta función ya no se usa"
 # 
 # def otra_funcion_eliminada():
 #     return "Esta tampoco"
 # 
-# # Variables comentadas
+# # Variables comentadas - Code Smell
 # # variable_inutil = "no se usa"
 # # otra_variable = 123
 # 
-# # Imports comentados
+# # Imports comentados - Code Smell
 # # import os
 # # import sys
 # # from datetime import datetime
+# 
+# # Código muerto comentado - Code Smell
+# # if True:
+# #     print("Esto nunca se ejecutará")
+# #     resultado = 42
+# #     return resultado
