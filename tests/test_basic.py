@@ -4,14 +4,9 @@ Solo se prueban algunas funciones, dejando muchas sin cobertura.
 """
 
 import pytest
-import sys
-import os
 
-# Agregar el directorio src al path para importar los módulos
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-from app.buggy_code import dividir_numeros, usar_variable_no_definida
-from app.duplicated_code1 import calcular_estadisticas_numericas, buscar_elemento_en_lista
+from src.app.buggy_code import dividir_numeros, usar_variable_no_definida
+from src.app.duplicated_code1 import calcular_estadisticas_numericas, buscar_elemento_en_lista
 
 
 class TestBuggyCode:
