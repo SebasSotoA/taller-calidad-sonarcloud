@@ -382,3 +382,400 @@ def funcion_con_imports_no_usados():
 # #     print("Esto nunca se ejecutará")
 # #     resultado = 42
 # #     return resultado
+
+
+def funcion_con_muchos_if_anidados():
+    """
+    Función con demasiados if anidados - aumenta complejidad ciclomática.
+    """
+    resultado = 0
+    for i in range(10):
+        if i > 0:
+            if i > 1:
+                if i > 2:
+                    if i > 3:
+                        if i > 4:
+                            if i > 5:
+                                if i > 6:
+                                    if i > 7:
+                                        if i > 8:
+                                            if i > 9:
+                                                resultado += i * 10
+                                            else:
+                                                resultado += i * 9
+                                        else:
+                                            resultado += i * 8
+                                    else:
+                                        resultado += i * 7
+                                else:
+                                    resultado += i * 6
+                            else:
+                                resultado += i * 5
+                        else:
+                            resultado += i * 4
+                    else:
+                        resultado += i * 3
+                else:
+                    resultado += i * 2
+            else:
+                resultado += i * 1
+        else:
+            resultado += 0
+    return resultado
+
+
+def funcion_con_muchos_elif():
+    """
+    Función con demasiados elif - aumenta complejidad ciclomática.
+    """
+    valor = 5
+    if valor == 1:
+        return "uno"
+    elif valor == 2:
+        return "dos"
+    elif valor == 3:
+        return "tres"
+    elif valor == 4:
+        return "cuatro"
+    elif valor == 5:
+        return "cinco"
+    elif valor == 6:
+        return "seis"
+    elif valor == 7:
+        return "siete"
+    elif valor == 8:
+        return "ocho"
+    elif valor == 9:
+        return "nueve"
+    elif valor == 10:
+        return "diez"
+    elif valor == 11:
+        return "once"
+    elif valor == 12:
+        return "doce"
+    elif valor == 13:
+        return "trece"
+    elif valor == 14:
+        return "catorce"
+    elif valor == 15:
+        return "quince"
+    elif valor == 16:
+        return "dieciséis"
+    elif valor == 17:
+        return "diecisiete"
+    elif valor == 18:
+        return "dieciocho"
+    elif valor == 19:
+        return "diecinueve"
+    elif valor == 20:
+        return "veinte"
+    else:
+        return "desconocido"
+
+
+def funcion_con_muchos_bucles_anidados():
+    """
+    Función con múltiples bucles anidados - aumenta complejidad.
+    """
+    resultado = 0
+    for i in range(5):
+        for j in range(5):
+            for k in range(5):
+                for l in range(5):
+                    for m in range(5):
+                        for n in range(5):
+                            for o in range(5):
+                                for p in range(5):
+                                    resultado += i + j + k + l + m + n + o + p
+    return resultado
+
+
+def funcion_con_muchas_condiciones_complejas():
+    """
+    Función con condiciones muy complejas - aumenta complejidad ciclomática.
+    """
+    resultado = 0
+    for i in range(20):
+        if (i > 0 and i < 10) or (i > 15 and i < 20):
+            if i % 2 == 0 and i % 3 == 0:
+                if i > 5 or i < 8:
+                    if i != 6 and i != 9:
+                        if i in [1, 2, 3, 4, 5, 7, 8]:
+                            if i not in [2, 4]:
+                                if i == 1 or i == 3 or i == 5 or i == 7 or i == 8:
+                                    if i == 1:
+                                        resultado += 1
+                                    elif i == 3:
+                                        resultado += 3
+                                    elif i == 5:
+                                        resultado += 5
+                                    elif i == 7:
+                                        resultado += 7
+                                    elif i == 8:
+                                        resultado += 8
+    return resultado
+
+
+def funcion_con_muchos_try_except():
+    """
+    Función con múltiples bloques try-except - aumenta complejidad.
+    """
+    resultado = 0
+    try:
+        resultado += 1
+        try:
+            resultado += 2
+            try:
+                resultado += 3
+                try:
+                    resultado += 4
+                    try:
+                        resultado += 5
+                        try:
+                            resultado += 6
+                            try:
+                                resultado += 7
+                                try:
+                                    resultado += 8
+                                    try:
+                                        resultado += 9
+                                        try:
+                                            resultado += 10
+                                        except:
+                                            resultado += 11
+                                    except:
+                                        resultado += 12
+                                except:
+                                    resultado += 13
+                            except:
+                                resultado += 14
+                        except:
+                            resultado += 15
+                    except:
+                        resultado += 16
+                except:
+                    resultado += 17
+            except:
+                resultado += 18
+        except:
+            resultado += 19
+    except:
+        resultado += 20
+    return resultado
+
+
+def funcion_con_muchos_while():
+    """
+    Función con múltiples bucles while - aumenta complejidad.
+    """
+    resultado = 0
+    i = 0
+    while i < 5:
+        j = 0
+        while j < 5:
+            k = 0
+            while k < 5:
+                l = 0
+                while l < 5:
+                    m = 0
+                    while m < 5:
+                        resultado += i + j + k + l + m
+                        m += 1
+                    l += 1
+                k += 1
+            j += 1
+        i += 1
+    return resultado
+
+
+def funcion_con_muchos_operadores_logicos():
+    """
+    Función con operadores lógicos complejos - aumenta complejidad.
+    """
+    resultado = 0
+    for i in range(10):
+        if (i > 0 and i < 5) or (i > 7 and i < 10):
+            if i % 2 == 0 and i % 3 != 0:
+                if i == 2 or i == 4 or i == 8:
+                    if i != 1 and i != 3 and i != 5 and i != 7 and i != 9:
+                        if i in [2, 4, 8] and i not in [1, 3, 5, 6, 7, 9]:
+                            if (i == 2 and i > 1) or (i == 4 and i > 3) or (i == 8 and i > 7):
+                                if not (i == 1 or i == 3 or i == 5 or i == 6 or i == 7 or i == 9):
+                                    resultado += i
+    return resultado
+
+
+def funcion_con_muchos_casos_switch():
+    """
+    Función que simula un switch con muchos casos - aumenta complejidad.
+    """
+    valor = 5
+    if valor == 1:
+        return "caso 1"
+    elif valor == 2:
+        return "caso 2"
+    elif valor == 3:
+        return "caso 3"
+    elif valor == 4:
+        return "caso 4"
+    elif valor == 5:
+        return "caso 5"
+    elif valor == 6:
+        return "caso 6"
+    elif valor == 7:
+        return "caso 7"
+    elif valor == 8:
+        return "caso 8"
+    elif valor == 9:
+        return "caso 9"
+    elif valor == 10:
+        return "caso 10"
+    elif valor == 11:
+        return "caso 11"
+    elif valor == 12:
+        return "caso 12"
+    elif valor == 13:
+        return "caso 13"
+    elif valor == 14:
+        return "caso 14"
+    elif valor == 15:
+        return "caso 15"
+    elif valor == 16:
+        return "caso 16"
+    elif valor == 17:
+        return "caso 17"
+    elif valor == 18:
+        return "caso 18"
+    elif valor == 19:
+        return "caso 19"
+    elif valor == 20:
+        return "caso 20"
+    elif valor == 21:
+        return "caso 21"
+    elif valor == 22:
+        return "caso 22"
+    elif valor == 23:
+        return "caso 23"
+    elif valor == 24:
+        return "caso 24"
+    elif valor == 25:
+        return "caso 25"
+    elif valor == 26:
+        return "caso 26"
+    elif valor == 27:
+        return "caso 27"
+    elif valor == 28:
+        return "caso 28"
+    elif valor == 29:
+        return "caso 29"
+    elif valor == 30:
+        return "caso 30"
+    else:
+        return "caso por defecto"
+
+
+def funcion_con_muchos_operadores_ternarios():
+    """
+    Función con operadores ternarios anidados - aumenta complejidad.
+    """
+    valor = 5
+    resultado = "alto" if valor > 10 else ("medio" if valor > 5 else ("bajo" if valor > 2 else ("muy bajo" if valor > 0 else "cero")))
+    
+    resultado2 = "A" if valor == 1 else ("B" if valor == 2 else ("C" if valor == 3 else ("D" if valor == 4 else ("E" if valor == 5 else ("F" if valor == 6 else ("G" if valor == 7 else ("H" if valor == 8 else ("I" if valor == 9 else ("J" if valor == 10 else "desconocido")))))))))
+    
+    return resultado, resultado2
+
+
+def funcion_con_muchos_lambdas():
+    """
+    Función con múltiples lambdas - aumenta complejidad.
+    """
+    lambda1 = lambda x: x * 2
+    lambda2 = lambda x: x + 1
+    lambda3 = lambda x: x - 1
+    lambda4 = lambda x: x / 2
+    lambda5 = lambda x: x ** 2
+    lambda6 = lambda x: x % 2
+    lambda7 = lambda x: x // 2
+    lambda8 = lambda x: x & 1
+    lambda9 = lambda x: x | 1
+    lambda10 = lambda x: x ^ 1
+    
+    resultado = 0
+    for i in range(10):
+        resultado += lambda1(lambda2(lambda3(lambda4(lambda5(lambda6(lambda7(lambda8(lambda9(lambda10(i))))))))))
+    
+    return resultado
+
+
+def funcion_con_muchos_generadores():
+    """
+    Función con múltiples generadores anidados - aumenta complejidad.
+    """
+    resultado = 0
+    for i in (x for x in range(5)):
+        for j in (y for y in range(5)):
+            for k in (z for z in range(5)):
+                for l in (w for w in range(5)):
+                    for m in (v for v in range(5)):
+                        resultado += i + j + k + l + m
+    return resultado
+
+
+def funcion_con_muchos_decoradores():
+    """
+    Función con múltiples decoradores - aumenta complejidad.
+    """
+    def decorador1(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) + 1
+        return wrapper
+    
+    def decorador2(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) + 2
+        return wrapper
+    
+    def decorador3(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) + 3
+        return wrapper
+    
+    def decorador4(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) + 4
+        return wrapper
+    
+    def decorador5(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) + 5
+        return wrapper
+    
+    @decorador1
+    @decorador2
+    @decorador3
+    @decorador4
+    @decorador5
+    def funcion_decorada(valor):
+        return valor
+    
+    return funcion_decorada(10)
+
+
+def funcion_con_muchos_context_managers():
+    """
+    Función con múltiples context managers - aumenta complejidad.
+    """
+    resultado = 0
+    with open("archivo1.txt", "r") as f1:
+        with open("archivo2.txt", "r") as f2:
+            with open("archivo3.txt", "r") as f3:
+                with open("archivo4.txt", "r") as f4:
+                    with open("archivo5.txt", "r") as f5:
+                        with open("archivo6.txt", "r") as f6:
+                            with open("archivo7.txt", "r") as f7:
+                                with open("archivo8.txt", "r") as f8:
+                                    with open("archivo9.txt", "r") as f9:
+                                        with open("archivo10.txt", "r") as f10:
+                                            resultado += len(f1.read()) + len(f2.read()) + len(f3.read()) + len(f4.read()) + len(f5.read()) + len(f6.read()) + len(f7.read()) + len(f8.read()) + len(f9.read()) + len(f10.read())
+    return resultado
