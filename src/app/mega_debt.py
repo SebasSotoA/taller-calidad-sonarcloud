@@ -324,12 +324,12 @@ def _estadisticas_basicas(usuarios: List[User]) -> Dict[str, Any]:
         "total_compartidos": sum(u["compartidos"] for u in usuarios),
         "total_mensajes_enviados": sum(u["mensajes_enviados"] for u in usuarios),
         "total_mensajes_recibidos": sum(u["mensajes_recibidos"] for u in usuarios),
-        "total_archivos_subidos": sum(u["archivos_subidos"] for u in usuarios),
-        "total_espacio_usado": sum(u["espacio_usado"] for u in usuarios),
-        "total_soporte_tickets": sum(u["soporte_tickets"] for u in usuarios),
-        "total_tickets_resueltos": sum(u["tickets_resueltos"] for u in usuarios),
+        "total_archivos_subidos": sum(u.get("archivos_subidos", 0) for u in usuarios),
+        "total_espacio_usado": sum(u.get("espacio_usado", 0) for u in usuarios),
+        "total_soporte_tickets": sum(u.get("soporte_tickets", 0) for u in usuarios),
+        "total_tickets_resueltos": sum(u.get("tickets_resueltos", 0) for u in usuarios),
         "satisfaccion_promedio": safe_div(
-            float(sum(u["satisfaccion"] for u in usuarios)), float(total)
+            float(sum(u.get("satisfaccion", 0.0) for u in usuarios)), float(total)
         )
         if total > 0
         else 0.0,
