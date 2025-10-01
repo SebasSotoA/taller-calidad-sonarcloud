@@ -59,8 +59,14 @@ jobs:
           pip install -r requirements.txt
       
       - name: Run tests with coverage
+        env:
+          PYTHONPATH: .
         run: |
-          python -m pytest tests/ --cov=src/app --cov-report=xml --cov-report=term-missing --junitxml=junit.xml
+          python -m pytest tests/ \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing \
+            --junitxml=junit.xml
       
       - name: Analyze with SonarCloud
         # You can pin the exact commit or the version.
