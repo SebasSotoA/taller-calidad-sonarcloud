@@ -47,6 +47,11 @@ def procesar_datos_complejos(datos: Iterable[Any]) -> Dict[str, Any]:
             for se in el:
                 if _is_num(se):
                     numeros.append(float(se))
+                elif isinstance(se, str):
+                    try:
+                        numeros.append(float(se))
+                    except ValueError:
+                        continue
     if not numeros:
         return {"datos_procesados": [], "suma_total": 0.0, "contador": 0, "promedio": 0.0, "maximo": 0.0, "minimo": 0.0}
     suma = sum(numeros)
