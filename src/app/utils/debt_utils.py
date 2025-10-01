@@ -1,30 +1,29 @@
+# app/utils/debt_utils.py
 """
 Helpers reutilizables para refactorización y reducción de duplicación en módulos de deuda técnica.
 Proveen operaciones seguras (safe_div, validate_index), normalización y utilidades
 para despachar estrategias y simular bucles anidados sin complejidad artificial.
+Incluye validadores y utilidades de conteo/porcentaje y armado de usuarios base.
 """
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Sequence, TypeVar, Optional, Dict, Mapping, Iterator
+from typing import Callable, Iterable, Sequence, TypeVar, Optional, Mapping, Any, Dict, List
 
 T = TypeVar("T")
 
+# ---------------------------
+# Constantes de validación
+# ---------------------------
+NAME_BOUNDS = (2, 50)
+ADDRESS_BOUNDS = (5, 200)
+POSTAL_BOUNDS = (4, 10)
+PHONE_BOUNDS = (10, 15)
+AGE_BOUNDS = (18, 65)
 
-# =========================
-# Excepciones de dominio (mejor semántica que ValueError genérico)
-# =========================
-class ValidationError(ValueError):
-    """Errores de validación de datos."""
 
-
-# =========================
-# Utilidades básicas y de despacho
-# =========================
 def safe_div(a: float, b: float) -> float:
-    """
-    Divide a entre b validando que b no sea cero.
-    """
+    """Divide a entre b validando que b no sea cero."""
     if b == 0:
         raise ValueError("El divisor no puede ser cero.")
     return a / b
@@ -35,9 +34,7 @@ def dispatch_by_key(
     table: Mapping[str, Callable[[], T]],
     default: Optional[Callable[[], T]] = None,
 ) -> T:
-    """
-    Despacha la llamada a una función según key usando un diccionario (sin args).
-    """
+    """Despacha por clave a una función sin argumentos."""
     fn = table.get(key)
     if fn is not None:
         return fn()
@@ -46,40 +43,10 @@ def dispatch_by_key(
     raise KeyError(f"Clave '{key}' no encontrada en tabla de despacho.")
 
 
-def dispatch_with_args(
-    key: str,
-    table: Mapping[str, Callable[..., T]],
-    *args,
-    default: Optional[Callable[..., T]] = None,
-    **kwargs,
-) -> T:
-    """
-    Variante de despacho que admite *args/**kwargs (OCP: fácil de extender).
-    """
-    fn = table.get(key)
-    if fn is not None:
-        return fn(*args, **kwargs)
-    if default is not None:
-        return default(*args, **kwargs)
-    raise KeyError(f"Clave '{key}' no encontrada en tabla de despacho.")
-
-
-def ensure(predicate: bool, message: str, exc: type[Exception] = ValidationError) -> None:
-    """
-    'Guard clause': si predicate es False, lanza la excepción indicada.
-    Útil para evitar anidamientos y documentar precondiciones.
-    """
-    if not predicate:
-        raise exc(message)
-
-
-# =========================
-# Números y colecciones
-# =========================
 def nested_loops(depth: int) -> int:
     """
-    Simula el trabajo de bucles anidados de profundidad dada de forma O(1).
-    Devuelve 2**depth - 1 para depth >= 1.
+    Simula bucles anidados de profundidad dada de forma O(1).
+    Retorna 2**depth - 1 para depth>=1.
     """
     if depth < 1:
         raise ValueError("La profundidad debe ser al menos 1.")
@@ -87,93 +54,214 @@ def nested_loops(depth: int) -> int:
 
 
 def normalize_numbers(valores: Iterable[float]) -> list[float]:
-    """
-    Normaliza una lista de números a rango [0, 1].
-    """
-    valores = list(valores)
-    if not valores:
-        raise ValidationError("La lista de valores está vacía.")
-    min_v, max_v = min(valores), max(valores)
-    if min_v == max_v:
-        raise ValidationError("Todos los valores son iguales; no se puede normalizar.")
-    span = max_v - min_v
-    return [(v - min_v) / span for v in valores]
+    """Normaliza una lista de números al rango [0, 1]."""
+    xs = list(valores)
+    if not xs:
+        raise ValueError("La lista de valores está vacía.")
+    mn, mx = min(xs), max(xs)
+    if mn == mx:
+        raise ValueError("Todos los valores son iguales; no se puede normalizar.")
+    span = mx - mn
+    return [(v - mn) / span for v in xs]
 
 
 def aggregate_stats(valores: Iterable[float]) -> dict[str, float]:
-    """
-    Calcula min, max, mean, var sobre una lista de números.
-    """
+    """Devuelve min, max, mean, var para una lista de números."""
     xs = list(valores)
     if not xs:
-        raise ValidationError("La lista de valores está vacía.")
+        raise ValueError("La lista de valores está vacía.")
     n = len(xs)
     mean = sum(xs) / n
     var = sum((x - mean) ** 2 for x in xs) / n
     return {"min": min(xs), "max": max(xs), "mean": mean, "var": var}
 
 
-def percentage(part: float, whole: float, *, decimals: int = 2, zero_when_empty: bool = True) -> float:
-    """
-    Calcula porcentaje de forma segura (evita división por cero).
-    """
-    if whole == 0:
-        if zero_when_empty:
-            return 0.0
-        raise ValidationError("No se puede calcular porcentaje con total = 0.")
-    return round((part / whole) * 100.0, decimals)
-
-
-def clamp(value: float, min_value: float, max_value: float) -> float:
-    """
-    Restringe un valor al rango [min_value, max_value].
-    """
-    if min_value > max_value:
-        raise ValidationError("min_value no puede ser mayor que max_value.")
-    return max(min_value, min(max_value, value))
-
-
-def chunked(iterable: Iterable[T], size: int) -> Iterator[list[T]]:
-    """
-    Divide un iterable en bloques de longitud 'size'. Útil para procesar lotes.
-    """
-    if size < 1:
-        raise ValidationError("El tamaño de chunk debe ser >= 1.")
-    buff: list[T] = []
-    for item in iterable:
-        buff.append(item)
-        if len(buff) == size:
-            yield buff
-            buff = []
-    if buff:
-        yield buff
-
-
-# =========================
-# Validación genérica de texto / secuencias
-# =========================
 def validate_index(seq: Sequence[T], idx: int) -> T:
-    """
-    Acceso seguro a un índice de una secuencia.
-    """
+    """Acceso seguro a índice de una secuencia."""
     if idx < 0 or idx >= len(seq):
         raise IndexError(f"Índice {idx} fuera de rango para secuencia de tamaño {len(seq)}.")
     return seq[idx]
 
 
-def is_alpha_space(s: str) -> bool:
-    """
-    True si la cadena contiene solo letras y espacios (útil para nombres).
-    """
-    return s.replace(" ", "").isalpha()
+# ---------------------------
+# Validadores comunes
+# ---------------------------
+def validate_email(email: str) -> List[str]:
+    errs: List[str] = []
+    if "@" not in email:
+        errs.append("Email inválido - falta @")
+    if "." not in email:
+        errs.append("Email inválido - falta punto")
+    if not (5 <= len(email) <= 100):
+        errs.append("Longitud de email inválida")
+    return errs
 
 
-def validate_length(s: str, *, min_len: int, max_len: int) -> None:
-    """
-    Valida longitud mínima y máxima de una cadena.
-    """
-    ensure(min_len >= 0, "min_len debe ser >= 0")
-    ensure(max_len >= min_len, "max_len debe ser >= min_len")
-    n = len(s)
-    if n < min_len or n > max_len:
-        raise ValidationError(f"Longitud inválida: {n} (esperado entre {min_len} y {max_len}).")
+def validate_phone(tel: str) -> List[str]:
+    errs: List[str] = []
+    min_tel, max_tel = PHONE_BOUNDS
+    if not tel.startswith("+"):
+        errs.append("Teléfono debe empezar con +")
+    if not (min_tel <= len(tel) <= max_tel):
+        errs.append("Longitud de teléfono inválida")
+    return errs
+
+
+def validate_name(nombre: str, etiqueta: str = "Nombre") -> List[str]:
+    errs: List[str] = []
+    min_n, max_n = NAME_BOUNDS
+    sin_espacios = nombre.replace(" ", "")
+    if not (min_n <= len(nombre) <= max_n):
+        errs.append(f"{etiqueta} con longitud inválida")
+    if not sin_espacios.isalpha():
+        errs.append(f"{etiqueta} contiene caracteres no válidos")
+    return errs
+
+
+def validate_address(dir_: str) -> List[str]:
+    errs: List[str] = []
+    min_d, max_d = ADDRESS_BOUNDS
+    if not (min_d <= len(dir_) <= max_d):
+        errs.append("Dirección con longitud inválida")
+    return errs
+
+
+def validate_postal_code(cp: str) -> List[str]:
+    errs: List[str] = []
+    min_cp, max_cp = POSTAL_BOUNDS
+    if not cp.isdigit():
+        errs.append("Código postal debe ser numérico")
+    if not (min_cp <= len(cp) <= max_cp):
+        errs.append("Longitud de código postal inválida")
+    return errs
+
+
+def validate_user_basic(u: Mapping[str, Any]) -> List[str]:
+    """Valida campos básicos de un usuario común a extreme/mega."""
+    errs: List[str] = []
+    min_age, max_age = AGE_BOUNDS
+    edad = int(u.get("edad", 0))
+    if edad < min_age:
+        errs.append("Edad menor a 18")
+    elif edad > max_age:
+        errs.append("Edad mayor a 65")
+    errs += validate_email(str(u.get("email", "")))
+    errs += validate_phone(str(u.get("telefono", "")))
+    errs += validate_name(str(u.get("nombre", "")), "Nombre")
+    errs += validate_name(str(u.get("apellido", "")), "Apellido")
+    errs += validate_address(str(u.get("direccion", "")))
+    errs += validate_postal_code(str(u.get("codigo_postal", "")))
+    return errs
+
+
+# ---------------------------
+# Conteos y porcentajes
+# ---------------------------
+def count_equals(items: Iterable[Mapping[str, Any]], key: str, value: Any) -> int:
+    return sum(1 for it in items if it.get(key) == value)
+
+
+def count_truthy(items: Iterable[Mapping[str, Any]], key: str) -> int:
+    return sum(1 for it in items if bool(it.get(key)))
+
+
+def pct(n: int, total: int) -> float:
+    return round(safe_div(float(n), float(total)) * 100.0, 2) if total > 0 else 0.0
+
+
+# ---------------------------
+# Usuario base y estadísticas básicas
+# ---------------------------
+def build_user_basic(i: int) -> Dict[str, Any]:
+    """Crea un usuario base con los campos compartidos por extreme/mega."""
+    return {
+        "id": i,
+        "nombre": f"Usuario {i}",
+        "apellido": f"Apellido {i}",
+        "email": f"usuario{i}@ejemplo.com",
+        "telefono": f"+123456789{i:03d}",
+        "edad": 18 + (i % 50),
+        "activo": (i % 2 == 0),
+        "rol": ("admin" if i % 10 == 0 else "user"),
+        "fecha_registro": f"2023-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+        "ultimo_acceso": f"2024-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+        "puntos": i * 10,
+        "nivel": ("bronce" if i < 100 else "plata" if i < 500 else "oro"),
+        "direccion": f"Calle {i}, Ciudad {i % 10}",
+        "codigo_postal": f"{10000 + i}",
+        "pais": ("España" if i % 2 == 0 else "México"),
+        "idioma": ("es" if i % 2 == 0 else "en"),
+        "notificaciones": (i % 3 == 0),
+        "newsletter": (i % 4 == 0),
+        "terminos_aceptados": True,
+        "privacidad_aceptada": True,
+    }
+
+
+def compute_basic_stats(usuarios: List[Mapping[str, Any]]) -> Dict[str, Any]:
+    """Estadísticas y distribuciones comunes para extreme/mega (parte básica)."""
+    total = len(usuarios)
+    activos = count_equals(usuarios, "activo", True)
+    inactivos = total - activos
+    admins = count_equals(usuarios, "rol", "admin")
+    normales = count_equals(usuarios, "rol", "user")
+
+    edad_stats = aggregate_stats([u["edad"] for u in usuarios])
+    puntos_stats = aggregate_stats([u["puntos"] for u in usuarios])
+
+    niveles = {
+        "bronce": count_equals(usuarios, "nivel", "bronce"),
+        "plata": count_equals(usuarios, "nivel", "plata"),
+        "oro": count_equals(usuarios, "nivel", "oro"),
+    }
+    idiomas = {
+        "espanol": count_equals(usuarios, "idioma", "es"),
+        "ingles": count_equals(usuarios, "idioma", "en"),
+    }
+    paises = {
+        "espana": count_equals(usuarios, "pais", "España"),
+        "mexico": count_equals(usuarios, "pais", "México"),
+    }
+    preferencias = {
+        "notificaciones_habilitadas": count_truthy(usuarios, "notificaciones"),
+        "newsletter_suscritos": count_truthy(usuarios, "newsletter"),
+    }
+
+    porcentajes = {
+        "porcentaje_activos": pct(activos, total),
+        "porcentaje_admin": pct(admins, total),
+        "porcentaje_bronce": pct(niveles["bronce"], total),
+        "porcentaje_plata": pct(niveles["plata"], total),
+        "porcentaje_oro": pct(niveles["oro"], total),
+        "porcentaje_espanol": pct(idiomas["espanol"], total),
+        "porcentaje_ingles": pct(idiomas["ingles"], total),
+        "porcentaje_espana": pct(paises["espana"], total),
+        "porcentaje_mexico": pct(paises["mexico"], total),
+        "porcentaje_notificaciones": pct(preferencias["notificaciones_habilitadas"], total),
+        "porcentaje_newsletter": pct(preferencias["newsletter_suscritos"], total),
+    }
+
+    return {
+        "resumen": {
+            "total_usuarios": total,
+            "usuarios_activos": activos,
+            "usuarios_inactivos": inactivos,
+            "usuarios_admin": admins,
+            "usuarios_normales": normales,
+        },
+        "estadisticas_edad": {
+            "promedio": edad_stats["mean"],
+            "minima": edad_stats["min"],
+            "maxima": edad_stats["max"],
+        },
+        "estadisticas_puntos": {
+            "promedio": puntos_stats["mean"],
+            "minimos": puntos_stats["min"],
+            "maximos": puntos_stats["max"],
+        },
+        "distribucion_niveles": niveles,
+        "distribucion_idiomas": idiomas,
+        "distribucion_paises": paises,
+        "preferencias": preferencias,
+        "porcentajes": porcentajes,
+    }
