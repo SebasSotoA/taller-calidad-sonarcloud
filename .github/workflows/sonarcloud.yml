@@ -68,9 +68,6 @@ jobs:
             --cov-report=term-missing \
             --junitxml=junit.xml
 
-      - name: Forzar rutas relativas en coverage.xml
-        run: coverage xml --relative-source=src
-
       - name: Analyze with SonarCloud
         # You can pin the exact commit or the version.
         # uses: SonarSource/sonarcloud-github-action@v2.2.0
