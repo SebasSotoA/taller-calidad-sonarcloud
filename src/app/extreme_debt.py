@@ -160,7 +160,10 @@ def funcion_con_muchas_variables_locales_extremas() -> int:
     return sum(range(1, 100 + 1))
 
 
-def funcion_con_muchos_return_statements_extremos() -> str:
-    """Regla compacta equivalente a múltiples 'return' en cascada."""
-    valor = 5
+def funcion_con_muchos_return_statements_extremos(valor: int = 5) -> str:
+    """Regla compacta equivalente a múltiples 'return' en cascada.
+
+    Se parametriza 'valor' para evitar una condición siempre verdadera a ojos del
+    analizador estático. El comportamiento por defecto se mantiene (valor=5).
+    """
     return f"caso {valor}" if 1 <= valor <= 50 else "caso por defecto"
