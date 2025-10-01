@@ -1,6 +1,6 @@
 import pytest
 
-from app.massive_debt import (
+from src.app.massive_debt import (
     funcion_con_complejidad_ciclamatica_extrema,
     funcion_con_muchos_bucles_anidados_extremos,
     funcion_con_muchos_try_except_anidados_extremos,

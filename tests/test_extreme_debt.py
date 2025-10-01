@@ -1,4 +1,4 @@
-from app.extreme_debt import (
+from src.app.extreme_debt import (
     funcion_extremadamente_larga_con_muchas_responsabilidades,
     funcion_con_muchos_parametros_extremos,
     funcion_con_muchas_variables_locales_extremas,

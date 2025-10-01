@@ -1,4 +1,4 @@
-from app.ultra_debt import (
+from src.app.ultra_debt import (
     funcion_con_variables_locales_masivas,
     funcion_con_return_statements_masivos,
     funcion_con_complejidad_ciclamatica_masiva,
