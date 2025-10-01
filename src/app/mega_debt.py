@@ -83,6 +83,10 @@ class User(TypedDict, total=False):
     formato_hora: str
     unidades: str
     temperatura: str
+    # Campos adicionales usados por estadísticas de uso
+    soporte_tickets: int
+    tickets_resueltos: int
+    satisfaccion: float
 
 
 TOTAL_USUARIOS_DEFAULT: int = 5000
@@ -181,6 +185,10 @@ def _build_user(i: int) -> User:
         formato_hora=("24h" if i % 2 == 0 else "12h"),
         unidades=("metric" if i % 2 == 0 else "imperial"),
         temperatura=("celsius" if i % 2 == 0 else "fahrenheit"),
+        # Campos requeridos por _estadisticas_basicas["uso"]
+        soporte_tickets=i % 10,
+        tickets_resueltos=i % 8,
+        satisfaccion=float((i % 5) + 1),  # escala 1..5
     )
 
 
