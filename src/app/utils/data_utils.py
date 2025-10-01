@@ -1,5 +1,5 @@
 """
-Utilidades de datos compartidas para cumplir DRY entre `duplicated_code1.py` y `duplicated_code2.py`.
+Utilidades de datos compartidas para cumplir DRY entre módulos de la app.
 """
 from __future__ import annotations
 

@@ -4,10 +4,9 @@ from typing import Any
 import pytest
 
 from src.app import duplicated_code1 as dc1
-from src.app import duplicated_code2 as dc2
 
 
-@pytest.mark.parametrize("mod", [dc1, dc2])
+@pytest.mark.parametrize("mod", [dc1])
 class TestDuplicatedModules:
     def test_calcular_estadisticas_numericas_ok(self, mod):
         datos = [1, 2, 3, 4.0, "x", None]
