@@ -2,274 +2,302 @@
 Archivo con código problemático para probar detección de bugs en SonarCloud.
 """
 
-def dividir_numeros(a, b):
-    """
-    Función que divide dos números sin verificar división por cero.
-    """
-    return a / b  # Bug: división por cero no manejada
+# Utilidades de responsabilidad única para validación y operaciones seguras
+from typing import Any, Iterable, Optional, Tuple
+import ast
 
 
-def usar_variable_no_definida():
-    """
-    Función que usa una variable no definida.
-    """
-    resultado = variable_inexistente + 10  # Bug: variable no definida
-    return resultado
+def _ensure_not_none(value: Any, name: str = "value") -> None:
+    """Valida que un valor no sea None, de lo contrario lanza ValueError."""
+    if value is None:
+        raise ValueError(f"{name} no debe ser None")
 
 
-def manejo_excepciones_vacio():
-    """
-    Función con bloque except vacío.
-    """
+def _safe_read_text(path: str, mode: str = "r", encoding: str = "utf-8") -> str:
+    """Lee un archivo de forma segura usando context manager. Retorna '' si no existe."""
     try:
-        resultado = 10 / 0
-    except ZeroDivisionError:
-        pass  # Bug: except vacío, no maneja el error
-    return resultado
+        with open(path, mode, encoding=encoding) as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
 
 
-def usar_eval_peligroso():
-    """
-    Función que usa eval() con input directo del usuario.
-    """
-    expresion = input("Ingresa una expresión matemática: ")
-    resultado = eval(expresion)  # Bug: uso peligroso de eval()
-    return resultado
+class _SafeEval(ast.NodeVisitor):
+    """Evaluador seguro para expresiones aritméticas simples (sin eval)."""
+
+    allowed_nodes = (
+        ast.Expression,
+        ast.BinOp,
+        ast.UnaryOp,
+        ast.Num,
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.Div,
+        ast.Mod,
+        ast.Pow,
+        ast.USub,
+        ast.UAdd,
+        ast.Load,
+        ast.Constant,
+    )
+
+    def visit(self, node):  # type: ignore[override]
+        if not isinstance(node, self.allowed_nodes):
+            raise ValueError("Expresión no permitida")
+        return super().visit(node)
+
+    def eval(self, expr: str) -> float:
+        tree = ast.parse(expr, mode="eval")
+        self.visit(tree)
+        return self._eval_node(tree.body)
+
+    def _eval_node(self, node: ast.AST) -> float:
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float)):
+                return float(node.value)
+            raise ValueError("Constante no numérica")
+        if isinstance(node, ast.Num):  # compat
+            return float(node.n)
+        if isinstance(node, ast.UnaryOp):
+            val = self._eval_node(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return +val
+            if isinstance(node.op, ast.USub):
+                return -val
+            raise ValueError("Operador unario no permitido")
+        if isinstance(node, ast.BinOp):
+            left = self._eval_node(node.left)
+            right = self._eval_node(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                if right == 0:
+                    raise ValueError("División por cero no permitida")
+                return left / right
+            if isinstance(node.op, ast.Mod):
+                if right == 0:
+                    raise ValueError("Módulo por cero no permitido")
+                return left % right
+            if isinstance(node.op, ast.Pow):
+                return left ** right
+            raise ValueError("Operador binario no permitido")
+        raise ValueError("Nodo no soportado")
+
+def dividir_numeros(a: float, b: float) -> float:
+    """Divide validando tipos y evitando división por cero (ValueError en caso inválido)."""
+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
+        raise ValueError("a y b deben ser numéricos")
+    if b == 0:
+        raise ValueError("División por cero no permitida")
+    return float(a) / float(b)
 
 
-def abrir_archivo_sin_cerrar():
-    """
-    Función que abre un archivo sin usar with statement.
-    """
-    archivo = open("archivo.txt", "r")  # Bug: archivo no se cierra
-    contenido = archivo.read()
-    return contenido
+def usar_variable_no_definida() -> int:
+    """Corrige el uso de variable inexistente usando una variable local definida."""
+    base = 0
+    return base + 10
 
 
-def procesar_lista_nula():
-    """
-    Función que no verifica si la lista es None.
-    """
-    lista = None
-    return len(lista)  # Bug: AttributeError si lista es None
+def manejo_excepciones_vacio() -> Optional[float]:
+    """Manejo explícito de excepción, sin except vacío y con retorno controlado."""
+    try:
+        return 10 / 2
+    except ZeroDivisionError:  # pragma: no cover
+        return None
 
 
-def comparar_string_con_int():
-    """
-    Función que compara tipos incompatibles.
-    """
-    numero = 42
-    texto = "42"
-    return numero == texto  # Bug: comparación siempre False
+def usar_eval_peligroso(expresion: str = "") -> float:
+    """Evalúa una expresión aritmética de forma segura con AST (sin eval)."""
+    _ensure_not_none(expresion, "expresion")
+    return _SafeEval().eval(expresion)
 
 
-def acceso_indice_fuera_rango():
-    """
-    Función que accede a índices fuera de rango.
-    """
+def abrir_archivo_sin_cerrar(path: str = "archivo.txt") -> str:
+    """Lee un archivo usando context manager y manejo de inexistencia."""
+    return _safe_read_text(path)
+
+
+def procesar_lista_nula(lista: Optional[Iterable[Any]] = None) -> int:
+    """Retorna longitud validando None y normalizando a lista."""
+    _ensure_not_none(lista, "lista")
+    return len(list(lista))
+
+
+def comparar_string_con_int(numero: int = 42, texto: str = "42") -> bool:
+    """Compara tras conversión segura de string a entero."""
+    try:
+        return numero == int(texto)
+    except (TypeError, ValueError):
+        return False
+
+
+def acceso_indice_fuera_rango(index: int = 10) -> Optional[int]:
+    """Accede a un índice de manera segura, retornando None si está fuera de rango."""
     lista = [1, 2, 3]
-    return lista[10]  # Bug: IndexError
+    return lista[index] if 0 <= index < len(lista) else None
 
 
-def usar_atributo_inexistente():
-    """
-    Función que accede a atributos que no existen.
-    """
+def usar_atributo_inexistente() -> Optional[str]:
+    """Accede de forma segura a una clave de diccionario existente."""
     diccionario = {"clave": "valor"}
-    return diccionario.atributo_inexistente  # Bug: AttributeError
+    return diccionario.get("clave")
 
 
-def comparaciones_tipos_incompatibles():
-    """
-    Múltiples comparaciones entre tipos incompatibles que siempre retornan False.
-    """
-    # Bug: Comparación int con string - siempre False
+def comparaciones_tipos_incompatibles() -> Tuple[bool, bool, bool, bool, bool]:
+    """Compara tras convertir a tipos compatibles o representaciones consistentes."""
     numero = 42
     texto = "42"
-    resultado1 = numero == texto  # S2159: Incompatible types comparison
-    
-    # Bug: Comparación float con string - siempre False
+    resultado1 = (numero == int(texto))
+
     decimal = 3.14
     texto_decimal = "3.14"
-    resultado2 = decimal == texto_decimal  # S2159: Incompatible types comparison
-    
-    # Bug: Comparación bool con int - siempre False
+    try:
+        resultado2 = (decimal == float(texto_decimal))
+    except ValueError:
+        resultado2 = False
+
     booleano = True
     entero = 1
-    resultado3 = booleano == entero  # S2159: Incompatible types comparison
-    
-    # Bug: Comparación list con string - siempre False
+    resultado3 = (int(booleano) == entero)
+
     lista = [1, 2, 3]
     texto_lista = "[1, 2, 3]"
-    resultado4 = lista == texto_lista  # S2159: Incompatible types comparison
-    
-    # Bug: Comparación dict con string - siempre False
+    resultado4 = (str(lista) == texto_lista)
+
     diccionario = {"a": 1}
     texto_dict = '{"a": 1}'
-    resultado5 = diccionario == texto_dict  # S2159: Incompatible types comparison
-    
+    resultado5 = (str(diccionario).replace("'", '"') == texto_dict)
+
     return resultado1, resultado2, resultado3, resultado4, resultado5
 
 
-def comparaciones_imposibles():
-    """
-    Comparaciones que siempre evalúan al mismo resultado.
-    """
-    # Bug: Comparación que siempre es True
-    if True == True:  # S2159: Always True comparison
-        resultado1 = "siempre verdadero"
-    
-    # Bug: Comparación que siempre es False
-    if False == True:  # S2159: Always False comparison
-        resultado2 = "nunca se ejecuta"
-    else:
-        resultado2 = "siempre se ejecuta"
-    
-    # Bug: Comparación de None con string - siempre False
+def comparaciones_imposibles() -> Tuple[str, str, bool, bool]:
+    """Evita comparaciones triviales; devuelve resultados útiles y verificables."""
+    x, y = 5, 10
+    resultado1 = "mayor" if y > x else "menor_igual"
+
+    bandera = False
+    resultado2 = "ejecuta" if bandera else "no_ejecuta"
+
     valor_none = None
     texto = "None"
-    resultado3 = valor_none == texto  # S2159: Incompatible types comparison
-    
-    # Bug: Comparación de tipos diferentes
-    lista_vacia = []
-    diccionario_vacio = {}
-    resultado4 = lista_vacia == diccionario_vacio  # S2159: Incompatible types comparison
-    
+    resultado3 = (valor_none is None and texto == "None")
+
+    lista_vacia, diccionario_vacio = [], {}
+    resultado4 = (len(lista_vacia) == 0 and len(diccionario_vacio) == 0)
+
     return resultado1, resultado2, resultado3, resultado4
 
 
-def operaciones_imposibles():
-    """
-    Operaciones que siempre fallan o dan resultados incorrectos.
-    """
-    # Bug: División por cero
-    resultado1 = 10 / 0  # S3519: Division by zero
-    
-    # Bug: Módulo por cero
-    resultado2 = 10 % 0  # S3519: Division by zero
-    
-    # Bug: Acceso a índice inexistente
+def operaciones_imposibles() -> Tuple[Optional[float], Optional[int], Optional[int], Optional[int]]:
+    """Evita fallas en tiempo de ejecución usando validaciones y accesos seguros."""
+    res_div: Optional[float] = None
+    a, b = 10, 2
+    if b != 0:
+        res_div = a / b
+
+    res_mod: Optional[int] = None
+    c, d = 10, 3
+    if d != 0:
+        res_mod = c % d
+
     lista = [1, 2, 3]
-    resultado3 = lista[100]  # S3519: Index out of bounds
-    
-    # Bug: Acceso a clave inexistente sin verificar
+    res_idx: Optional[int] = lista[2] if 0 <= 2 < len(lista) else None
+
     diccionario = {"a": 1}
-    resultado4 = diccionario["b"]  # S3519: Key not found
-    
-    return resultado1, resultado2, resultado3, resultado4
+    res_key: Optional[int] = diccionario.get("b")
+
+    return res_div, res_mod, res_idx, res_key
 
 
-def uso_recursos_no_cerrados():
-    """
-    Uso de recursos sin cerrarlos adecuadamente.
-    """
-    # Bug: Archivo abierto sin cerrar
-    archivo1 = open("archivo1.txt", "r")
-    contenido1 = archivo1.read()
-    # No se cierra el archivo
-    
-    # Bug: Múltiples archivos abiertos sin cerrar
-    archivo2 = open("archivo2.txt", "w")
-    archivo2.write("contenido")
-    # No se cierran los archivos
-    
-    archivo3 = open("archivo3.txt", "a")
-    archivo3.write("más contenido")
-    # No se cierra el archivo
-    
-    return contenido1
+def uso_recursos_no_cerrados() -> str:
+    """Gestiona archivos con context managers y retorna el contenido leído."""
+    # Escritura segura
+    with open("archivo2.txt", "w", encoding="utf-8") as f2:
+        f2.write("contenido")
+    with open("archivo3.txt", "a", encoding="utf-8") as f3:
+        f3.write("más contenido")
+
+    # Lectura segura ('' si no existe)
+    return _safe_read_text("archivo1.txt")
 
 
-def variables_no_inicializadas():
-    """
-    Uso de variables que pueden no estar inicializadas.
-    """
-    # Bug: Variable condicionalmente inicializada
-    if True:  # Esta condición podría ser False
-        variable = 42
-    
-    # Bug: Acceso a variable que podría no existir
-    resultado = variable + 10  # S3519: Variable might not be initialized
-    
-    # Bug: Variable en bucle que podría no ejecutarse
-    for i in range(0):  # Bucle vacío
+def variables_no_inicializadas() -> Tuple[int, int]:
+    """Inicializa explícitamente variables y produce resultados deterministas."""
+    variable = 42
+    resultado = variable + 10
+
+    variable_bucle = 0
+    for i in range(1):
         variable_bucle = i
-    
-    # Bug: Acceso a variable del bucle que no se ejecutó
-    resultado_bucle = variable_bucle * 2  # S3519: Variable might not be initialized
-    
+    resultado_bucle = variable_bucle * 2
+
     return resultado, resultado_bucle
 
 
-def excepciones_no_manejadas():
-    """
-    Excepciones que no se manejan adecuadamente.
-    """
-    # Bug: Except vacío
+def excepciones_no_manejadas() -> Tuple[Optional[float], Optional[int], Optional[int]]:
+    """Manejo específico de excepciones sin bloques vacíos ni genéricos."""
+    # División segura
+    div: Optional[float]
+    a, b = 10, 0
     try:
-        resultado = 10 / 0
+        div = a / b
     except ZeroDivisionError:
-        pass  # S1186: Empty except block
-    
-    # Bug: Except demasiado genérico
+        div = None
+
+    # Conversión segura
+    entero: Optional[int]
     try:
-        resultado = int("no es un número")
-    except:  # S1186: Bare except clause
-        pass
-    
-    # Bug: Except que no maneja el error específico
+        entero = int("123")
+    except ValueError:
+        entero = None
+
+    # Índice seguro
+    lista = [1, 2, 3]
     try:
-        lista = [1, 2, 3]
-        resultado = lista[10]
-    except ValueError:  # S1186: Wrong exception type
-        pass
-    
-    return resultado
+        idx = lista[5]
+    except IndexError:
+        idx = None
+
+    return div, entero, idx
 
 
-def comparaciones_strings_peligrosas():
-    """
-    Comparaciones de strings que pueden ser problemáticas.
-    """
-    # Bug: Comparación con string vacío usando ==
+def comparaciones_strings_peligrosas() -> Tuple[str, str, str]:
+    """Compara de forma idiomática: not, is None y casting controlado."""
     texto = ""
-    if texto == "":  # S2159: Use 'not' instead of '== ""'
-        resultado1 = "string vacío"
-    
-    # Bug: Comparación con None usando ==
+    r1 = "string vacío" if not texto else "string no vacío"
+
     valor = None
-    if valor == None:  # S2159: Use 'is None' instead of '== None'
-        resultado2 = "valor es None"
-    
-    # Bug: Comparación de tipos diferentes
+    r2 = "valor es None" if (valor is None) else "valor no es None"
+
     numero_str = "123"
     numero_int = 123
-    if numero_str == numero_int:  # S2159: Incompatible types comparison
-        resultado3 = "iguales"
-    else:
-        resultado3 = "diferentes"
-    
-    return resultado1, resultado2, resultado3
+    try:
+        iguales = int(numero_str) == numero_int
+    except ValueError:
+        iguales = False
+    r3 = "iguales" if iguales else "diferentes"
+
+    return r1, r2, r3
 
 
-def operaciones_lista_peligrosas():
-    """
-    Operaciones con listas que pueden fallar.
-    """
-    # Bug: Acceso a índice negativo
+def operaciones_lista_peligrosas() -> Tuple[Optional[int], Optional[int], Optional[int], Optional[Any]]:
+    """Valida índices y evita atributos inexistentes en listas."""
     lista = [1, 2, 3]
-    resultado1 = lista[-10]  # S3519: Index out of bounds
-    
-    # Bug: Acceso a índice de lista vacía
-    lista_vacia = []
-    resultado2 = lista_vacia[0]  # S3519: Index out of bounds
-    
-    # Bug: Pop de lista vacía
-    lista_vacia2 = []
-    resultado3 = lista_vacia2.pop()  # S3519: Pop from empty list
-    
-    # Bug: Acceso a atributo de lista como si fuera objeto
-    lista_obj = [1, 2, 3]
-    resultado4 = lista_obj.atributo_inexistente  # S3519: AttributeError
-    
-    return resultado1, resultado2, resultado3, resultado4
+    r1 = lista[0] if len(lista) > 0 else None
+
+    lista_vacia: list[int] = []
+    r2 = lista_vacia[0] if len(lista_vacia) > 0 else None
+
+    lista_vacia2: list[int] = []
+    r3 = lista_vacia2.pop() if len(lista_vacia2) > 0 else None
+
+    # Las listas no tienen atributos personalizados por defecto; devolver None
+    r4 = None
+
+    return r1, r2, r3, r4

@@ -3,118 +3,37 @@ Archivo con código duplicado para probar detección de duplicación en SonarClo
 Este archivo contiene funciones idénticas a duplicated_code1.py
 """
 
-def calcular_estadisticas_numericas(lista_numeros):
-    """
-    Función que calcula estadísticas básicas de una lista de números.
-    Esta función es idéntica a la de duplicated_code1.py
-    """
-    if not lista_numeros:
-        return None
-    
-    suma_total = 0
-    contador = 0
-    maximo = float('-inf')
-    minimo = float('inf')
-    
-    for numero in lista_numeros:
-        if isinstance(numero, (int, float)):
-            suma_total += numero
-            contador += 1
-            if numero > maximo:
-                maximo = numero
-            if numero < minimo:
-                minimo = numero
-    
-    promedio = suma_total / contador if contador > 0 else 0
-    
-    return {
-        "suma": suma_total,
-        "promedio": promedio,
-        "maximo": maximo,
-        "minimo": minimo,
-        "contador": contador
-    }
+from typing import Any, Iterable, List, Tuple, Dict, Optional
+
+from src.app.utils.data_utils import (
+    calcular_estadisticas_numericas as _calc_stats,
+    procesar_archivo_csv as _proc_csv,
+    validar_datos_entrada as _validar,
+    convertir_temperaturas as _conv_temp,
+    buscar_elemento_en_lista as _buscar,
+)
 
 
-def procesar_archivo_csv(nombre_archivo):
-    """
-    Función que procesa un archivo CSV y extrae datos numéricos.
-    Esta función es idéntica a la de duplicated_code1.py
-    """
-    datos_numericos = []
-    
-    try:
-        with open(nombre_archivo, 'r') as archivo:
-            lineas = archivo.readlines()
-            
-            for linea in lineas:
-                columnas = linea.strip().split(',')
-                
-                for columna in columnas:
-                    try:
-                        numero = float(columna)
-                        datos_numericos.append(numero)
-                    except ValueError:
-                        continue
-                        
-    except FileNotFoundError:
-        print(f"Error: No se encontró el archivo {nombre_archivo}")
-        return []
-    except Exception as e:
-        print(f"Error al procesar el archivo: {e}")
-        return []
-    
-    return datos_numericos
+def calcular_estadisticas_numericas(lista_numeros: Iterable[Any]) -> Optional[Dict[str, float]]:
+    """Calcula estadísticas delegando en utilidades compartidas (SRP/DRY)."""
+    return _calc_stats(lista_numeros)
 
 
-def validar_datos_entrada(datos):
-    """
-    Función de validación que es idéntica a la de duplicated_code1.py
-    """
-    errores = []
-    
-    if datos is None:
-        errores.append("Los datos no pueden ser None")
-        return False, errores
-    
-    if not isinstance(datos, list):
-        errores.append("Los datos deben ser una lista")
-        return False, errores
-    
-    if len(datos) == 0:
-        errores.append("La lista no puede estar vacía")
-        return False, errores
-    
-    for i, dato in enumerate(datos):
-        if not isinstance(dato, (int, float)):
-            errores.append(f"El elemento en posición {i} no es un número")
-    
-    return len(errores) == 0, errores
+def procesar_archivo_csv(nombre_archivo: str) -> List[float]:
+    """Procesa un CSV delegando en utilidades; sin prints, retorna lista de floats."""
+    return _proc_csv(nombre_archivo)
 
 
-def convertir_temperaturas(temperaturas_celsius):
-    """
-    Función que convierte temperaturas de Celsius a Fahrenheit.
-    """
-    temperaturas_fahrenheit = []
-    
-    for temp_c in temperaturas_celsius:
-        if isinstance(temp_c, (int, float)):
-            temp_f = (temp_c * 9/5) + 32
-            temperaturas_fahrenheit.append(temp_f)
-    
-    return temperaturas_fahrenheit
+def validar_datos_entrada(datos: Any) -> Tuple[bool, List[str]]:
+    """Valida datos delegando en utilidades compartidas."""
+    return _validar(datos)
 
 
-def buscar_elemento_en_lista(lista, elemento):
-    """
-    Función de búsqueda que es idéntica a la de duplicated_code1.py
-    """
-    if not lista:
-        return -1
-    
-    for i, item in enumerate(lista):
-        if item == elemento:
-            return i
-    
-    return -1
+def convertir_temperaturas(temperaturas_celsius: Iterable[Any]) -> List[float]:
+    """Convierte temperaturas delegando en utilidades compartidas."""
+    return _conv_temp(temperaturas_celsius)
+
+
+def buscar_elemento_en_lista(lista: Iterable[Any], elemento: Any) -> int:
+    """Busca un elemento delegando en utilidades compartidas."""
+    return _buscar(lista, elemento)
