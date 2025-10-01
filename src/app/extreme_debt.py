@@ -10,11 +10,27 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple, TypedDict
 
-from .utils import (
-    build_user_basic,
-    validate_user_basic,
-    compute_basic_stats,
-)
+# Import robusto de utils para distintos contextos de ejecución (CI/local)
+try:  # paquete relativo (contexto normal de paquete)
+    from .utils.debt_utils import (
+        build_user_basic,
+        validate_user_basic,
+        compute_basic_stats,
+    )
+except Exception:  # pragma: no cover - fallback para runners con paths atípicos
+    try:
+        from src.app.utils.debt_utils import (  # type: ignore
+            build_user_basic,
+            validate_user_basic,
+            compute_basic_stats,
+        )
+    except Exception:  # último recurso si el runner expone app en sys.path
+        from app.utils.debt_utils import (  # type: ignore
+            build_user_basic,
+            validate_user_basic,
+            compute_basic_stats,
+        )
+
 
 # =========================
 # Tipos y constantes
