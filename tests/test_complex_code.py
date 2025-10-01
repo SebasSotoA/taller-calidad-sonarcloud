@@ -32,6 +32,13 @@ def test_funcion_con_muchos_parametros_y_logica_compleja():
     assert resultado == 152
 
 
+def test_funcion_con_muchos_parametros_excluye_diez_en_suma():
+    # Cubre la lógica específica: excluir el 10 de la suma de positivos
+    assert cc.funcion_con_muchos_parametros_y_logica_compleja(
+        10, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ) == 0
+
+
 def _expected_operaciones() -> float:
     base = sum(range(1, 31))
     resultado = base
