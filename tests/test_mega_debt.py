@@ -1,5 +1,5 @@
 import pytest
-import app.mega_debt as mega
+import src.app.mega_debt as mega
 
 def test_funcion_mega_larga_con_responsabilidades_masivas_monkeypatched(monkeypatch):
     # Acelera: baja a 200 usuarios para el test

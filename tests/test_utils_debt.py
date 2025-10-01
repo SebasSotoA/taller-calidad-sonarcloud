@@ -1,7 +1,7 @@
 import math
 import pytest
 
-from app.utils.debt_utils import (
+from src.app.utils.debt_utils import (
     safe_div,
     dispatch_by_key,
     nested_loops,
@@ -63,12 +63,12 @@ def _maybe(module_name, attr):
 
 def test_optional_extras_if_present():
     # Importa helpers opcionales si están disponibles; si no, se salta.
-    percentage = _maybe("app.utils.debt_utils", "percentage")
-    clamp = _maybe("app.utils.debt_utils", "clamp")
-    chunked = _maybe("app.utils.debt_utils", "chunked")
-    is_alpha_space = _maybe("app.utils.debt_utils", "is_alpha_space")
-    validate_length = _maybe("app.utils.debt_utils", "validate_length")
-    dispatch_with_args = _maybe("app.utils.debt_utils", "dispatch_with_args")
+    percentage = _maybe("src.app.utils.debt_utils", "percentage")
+    clamp = _maybe("src.app.utils.debt_utils", "clamp")
+    chunked = _maybe("src.app.utils.debt_utils", "chunked")
+    is_alpha_space = _maybe("src.app.utils.debt_utils", "is_alpha_space")
+    validate_length = _maybe("src.app.utils.debt_utils", "validate_length")
+    dispatch_with_args = _maybe("src.app.utils.debt_utils", "dispatch_with_args")
 
     if percentage is not None:
         assert percentage(1, 4) == 25.0
